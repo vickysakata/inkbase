@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Inkbase
 
-## Getting Started
+个人知识库工具 — 本地存储，AI 语义搜索。
 
-First, run the development server:
+文档和向量数据全部存储在本地 PostgreSQL，embedding 计算通过 Pie Gateway 完成（仅传输不存储）。
+
+## 本地部署
+
+### 前置要求
+
+- Node.js 18+
+- PostgreSQL 14+（本地运行）
+
+### 1. 安装 PostgreSQL（macOS）
+
+```bash
+brew install postgresql@16
+brew services start postgresql@16
+createdb inkbase
+```
+
+### 2. 克隆项目
+
+```bash
+git clone https://github.com/vickysakata/inkbase.git
+cd inkbase
+```
+
+### 3. 配置环境变量
+
+```bash
+cp .env.example .env.local
+```
+
+编辑 `.env.local`，填入你的本地 PostgreSQL 连接信息和 Pie Gateway 凭证。
+
+### 4. 安装依赖 & 初始化数据库
+
+```bash
+npm install
+npx prisma migrate deploy
+```
+
+### 5. 启动
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+打开 http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 数据隐私
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| 数据 | 位置 | 说明 |
+|------|------|------|
+| 文档原文 | 🏠 本地 PostgreSQL | 不上云 |
+| 向量 (embedding) | 🏠 本地 PostgreSQL | 不上云 |
+| embedding 计算 | ☁️ Pie Gateway | 仅传输处理，不存储 |
 
-## Learn More
+## 技术栈
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js 15 (App Router)
+- Prisma + PostgreSQL
+- Pie Gateway (text-embedding-3-small)
