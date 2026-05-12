@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// 文档来源目录配置
+model Source {
+  id        String   @id @default(cuid())
+  name      String   // "素材库" 或 "点子库"
+  path      String   @unique // 本地文件夹绝对路径
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents Document[]
+}
+
+/// 文档记录
+model Document {
+  id        String   @id @default(cuid())
+  title     String   // 文件名（不含后缀）
+  filePath  String   @unique // 文件绝对路径
+  content   String   // 文件全文内容
+  updatedAt DateTime @updatedAt
+  fileModAt DateTime // 文件最后修改时间
+
+  sourceId String
+  source   Source @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  chunks DocumentChunk[]
+}
+
+/// 文档分块（用于向量检索）
+model DocumentChunk {
+  id        String @id @default(cuid())
+  content   String // 分块文本内容
+  embedding Json?  // embedding 向量，存为 JSON 数组
+  chunkIdx  Int    // 分块序号
+
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+}
