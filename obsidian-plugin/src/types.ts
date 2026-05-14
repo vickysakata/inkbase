@@ -21,7 +21,6 @@ export interface InkbaseSettings {
   customModel: string;
 
   // General
-  ideasFolder: string;
   excludeFolders: string[];
   autoIndex: boolean;
 

@@ -1,7 +1,6 @@
 import { Plugin, WorkspaceLeaf, TFile, TAbstractFile, Notice, debounce } from "obsidian";
 import { InkbaseSettingTab } from "./settings";
 import { SearchView, VIEW_TYPE_SEARCH } from "./views/search-view";
-import { IdeasView, VIEW_TYPE_IDEAS } from "./views/ideas-view";
 import { VectorStore } from "./store";
 import { createEmbeddingProvider } from "./embedding/factory";
 import { splitIntoChunks } from "./chunker";
@@ -20,7 +19,6 @@ const DEFAULT_SETTINGS: InkbaseSettings = {
   customEndpoint: "",
   customApiKey: "",
   customModel: "",
-  ideasFolder: "ideas",
   excludeFolders: [],
   autoIndex: true,
   libraries: [],
@@ -50,15 +48,10 @@ export default class InkbasePlugin extends Plugin {
 
     // Register views
     this.registerView(VIEW_TYPE_SEARCH, (leaf) => new SearchView(leaf, this));
-    this.registerView(VIEW_TYPE_IDEAS, (leaf) => new IdeasView(leaf, this));
 
     // Ribbon icons
     this.addRibbonIcon("search", "Inkbase: 语义搜索", () => {
       this.activateView(VIEW_TYPE_SEARCH);
-    });
-
-    this.addRibbonIcon("lightbulb", "Inkbase: 写点子", () => {
-      this.activateView(VIEW_TYPE_IDEAS);
     });
 
     // Commands
@@ -66,12 +59,6 @@ export default class InkbasePlugin extends Plugin {
       id: "open-search",
       name: "打开语义搜索",
       callback: () => this.activateView(VIEW_TYPE_SEARCH),
-    });
-
-    this.addCommand({
-      id: "open-ideas",
-      name: "写点子",
-      callback: () => this.activateView(VIEW_TYPE_IDEAS),
     });
 
     this.addCommand({
@@ -104,7 +91,6 @@ export default class InkbasePlugin extends Plugin {
 
   async onunload() {
     this.app.workspace.detachLeavesOfType(VIEW_TYPE_SEARCH);
-    this.app.workspace.detachLeavesOfType(VIEW_TYPE_IDEAS);
   }
 
   async loadSettings() {

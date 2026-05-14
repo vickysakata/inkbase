@@ -184,25 +184,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
     }
 
     // ============================================================
-    // 二、内容输入配置
-    // ============================================================
-    new Setting(containerEl).setName("内容输入配置").setHeading();
-
-    new Setting(containerEl)
-      .setName("点子保存位置")
-      .setDesc("「写点子」创建的笔记保存到这个文件夹，填写相对路径")
-      .addText((text) =>
-        text
-          .setPlaceholder("例如：ideas 或 点子库/日常")
-          .setValue(this.plugin.settings.ideasFolder)
-          .onChange(async (value) => {
-            this.plugin.settings.ideasFolder = value;
-            await this.plugin.saveSettings();
-          })
-      );
-
-    // ============================================================
-    // 三、检索设置
+    // 二、检索设置
     // ============================================================
     new Setting(containerEl).setName("检索设置").setHeading();
 
