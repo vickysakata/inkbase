@@ -1,0 +1,184 @@
+/* Inkbase Plugin Styles */
+
+.inkbase-search-container,
+.inkbase-ideas-container {
+  padding: 12px;
+}
+
+/* Search */
+.inkbase-search-wrapper {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.inkbase-search-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 6px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 14px;
+}
+
+.inkbase-search-input:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+}
+
+.inkbase-search-btn {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  cursor: pointer;
+}
+
+.inkbase-search-btn:hover {
+  opacity: 0.9;
+}
+
+/* Results */
+.inkbase-results {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.inkbase-result-item {
+  padding: 10px 12px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.inkbase-result-item:hover {
+  background: var(--background-secondary);
+}
+
+.inkbase-result-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.inkbase-result-title {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-normal);
+}
+
+.inkbase-result-score {
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--background-secondary);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.inkbase-result-snippet {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Stats */
+.inkbase-stats {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--background-modifier-border);
+  font-size: 11px;
+  color: var(--text-faint);
+  text-align: center;
+}
+
+/* Ideas */
+.inkbase-ideas-title {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  color: var(--text-normal);
+}
+
+.inkbase-ideas-textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 10px;
+  border: 1px solid var(--background-modifier-border);
+  border-radius: 8px;
+  background: var(--background-primary);
+  color: var(--text-normal);
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.inkbase-ideas-textarea:focus {
+  border-color: var(--interactive-accent);
+  outline: none;
+}
+
+.inkbase-ideas-actions {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.inkbase-ideas-save-btn {
+  padding: 8px 16px;
+  border-radius: 6px;
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.inkbase-ideas-save-btn:hover {
+  opacity: 0.9;
+}
+
+/* Related */
+.inkbase-related-title {
+  margin-top: 20px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.inkbase-related-results {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Loading & Empty states */
+.inkbase-loading,
+.inkbase-empty {
+  text-align: center;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.inkbase-error {
+  text-align: center;
+  padding: 12px;
+  color: var(--text-error);
+  font-size: 13px;
+}
+
+/* Settings stats */
+.inkbase-settings-stats {
+  padding: 8px 12px;
+  background: var(--background-secondary);
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}

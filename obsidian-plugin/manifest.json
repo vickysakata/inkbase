@@ -1,0 +1,10 @@
+{
+  "id": "inkbase",
+  "name": "Inkbase",
+  "version": "0.1.0",
+  "minAppVersion": "0.15.0",
+  "description": "本地语义搜索 — 基于 embedding 向量的知识库检索，数据完全存储在本地。",
+  "author": "vickysakata",
+  "authorUrl": "https://github.com/vickysakata",
+  "isDesktopOnly": false
+}

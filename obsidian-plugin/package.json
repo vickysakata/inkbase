@@ -1,0 +1,16 @@
+{
+  "name": "obsidian-inkbase",
+  "version": "0.1.0",
+  "description": "Inkbase - 本地语义搜索 Obsidian 插件",
+  "main": "main.js",
+  "scripts": {
+    "dev": "node esbuild.config.mjs",
+    "build": "node esbuild.config.mjs production"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.6",
+    "esbuild": "^0.17.0",
+    "obsidian": "latest",
+    "typescript": "^5.0.0"
+  }
+}
