@@ -2,21 +2,15 @@ import type { InkbaseSettings, EmbeddingProvider } from "../types";
 import { PieGatewayProvider } from "./pie-gateway";
 import { OpenAIProvider } from "./openai";
 import { OllamaProvider } from "./ollama";
+import { DoubaoProvider } from "./doubao";
 
 export function createEmbeddingProvider(
   settings: InkbaseSettings
 ): EmbeddingProvider {
   switch (settings.provider) {
-    case "deepseek":
-      return new OpenAIProvider(
-        settings.deepseekApiKey,
-        "https://api.deepseek.com",
-        "embedding-3"
-      );
     case "doubao":
-      return new OpenAIProvider(
+      return new DoubaoProvider(
         settings.doubaoApiKey,
-        "https://ark.cn-beijing.volces.com/api/v3",
         settings.doubaoModel
       );
     case "openai":
@@ -40,10 +34,10 @@ export function createEmbeddingProvider(
         settings.customModel
       );
     default:
-      return new OpenAIProvider(
-        settings.deepseekApiKey,
-        "https://api.deepseek.com",
-        "embedding-3"
+      // 默认使用豆包
+      return new DoubaoProvider(
+        settings.doubaoApiKey,
+        settings.doubaoModel
       );
   }
 }

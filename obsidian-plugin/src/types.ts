@@ -1,13 +1,10 @@
 export interface InkbaseSettings {
-  provider: "deepseek" | "doubao" | "openai" | "ollama" | "pie-gateway" | "custom";
+  provider: "doubao" | "openai" | "ollama" | "pie-gateway" | "custom";
 
   // Pie Gateway
   pieAppId: string;
   pieAppSecret: string;
   pieGatewayPath: string;
-
-  // DeepSeek
-  deepseekApiKey: string;
 
   // 豆包（火山方舟）
   doubaoApiKey: string;
