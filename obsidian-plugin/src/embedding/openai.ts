@@ -26,7 +26,10 @@ export class OpenAIProvider implements EmbeddingProvider {
   }
 
   private async callApi(input: string[]): Promise<number[][]> {
-    const url = `${this.baseUrl}/v1/embeddings`;
+    // If baseUrl already ends with a versioned path (like /v3 or /v1), append /embeddings directly
+    const url = this.baseUrl.match(/\/v\d+\/?$/)
+      ? `${this.baseUrl.replace(/\/$/, "")}/embeddings`
+      : `${this.baseUrl}/v1/embeddings`;
 
     const response = await requestUrl({
       url,

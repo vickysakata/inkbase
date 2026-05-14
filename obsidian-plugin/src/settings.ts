@@ -23,9 +23,11 @@ export class InkbaseSettingTab extends PluginSettingTab {
       .setDesc("选择用于语义分析的 AI 服务")
       .addDropdown((dropdown) =>
         dropdown
-          .addOption("pie-gateway", "Pie Gateway")
+          .addOption("deepseek", "DeepSeek")
+          .addOption("doubao", "豆包（火山方舟）")
           .addOption("openai", "OpenAI 兼容")
           .addOption("ollama", "Ollama（完全本地）")
+          .addOption("pie-gateway", "Pie Gateway")
           .addOption("custom", "自定义服务")
           .setValue(this.plugin.settings.provider)
           .onChange(async (value) => {
@@ -73,6 +75,49 @@ export class InkbaseSettingTab extends PluginSettingTab {
             .setValue(this.plugin.settings.pieGatewayPath)
             .onChange(async (value) => {
               this.plugin.settings.pieGatewayPath = value;
+              await this.plugin.saveSettings();
+            })
+        );
+    }
+
+    if (provider === "deepseek") {
+      new Setting(containerEl)
+        .setName("API Key")
+        .setDesc("在 platform.deepseek.com 获取")
+        .addText((text) =>
+          text
+            .setPlaceholder("sk-xxxxxxxx")
+            .setValue(this.plugin.settings.deepseekApiKey)
+            .onChange(async (value) => {
+              this.plugin.settings.deepseekApiKey = value;
+              await this.plugin.saveSettings();
+            })
+        );
+    }
+
+    if (provider === "doubao") {
+      new Setting(containerEl)
+        .setName("API Key")
+        .setDesc("在火山引擎控制台 → 方舟平台获取")
+        .addText((text) =>
+          text
+            .setPlaceholder("ARK API Key")
+            .setValue(this.plugin.settings.doubaoApiKey)
+            .onChange(async (value) => {
+              this.plugin.settings.doubaoApiKey = value;
+              await this.plugin.saveSettings();
+            })
+        );
+
+      new Setting(containerEl)
+        .setName("模型名称")
+        .setDesc("推荐 doubao-embedding-large，也可填 Endpoint ID（ep-xxx）")
+        .addText((text) =>
+          text
+            .setPlaceholder("doubao-embedding-large")
+            .setValue(this.plugin.settings.doubaoModel)
+            .onChange(async (value) => {
+              this.plugin.settings.doubaoModel = value;
               await this.plugin.saveSettings();
             })
         );

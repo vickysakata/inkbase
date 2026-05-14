@@ -7,10 +7,13 @@ import { splitIntoChunks } from "./chunker";
 import type { InkbaseSettings, EmbeddingProvider } from "./types";
 
 const DEFAULT_SETTINGS: InkbaseSettings = {
-  provider: "pie-gateway",
+  provider: "deepseek",
   pieAppId: "",
   pieAppSecret: "",
   pieGatewayPath: "https://pie-gateway.weapp.me",
+  deepseekApiKey: "",
+  doubaoApiKey: "",
+  doubaoModel: "doubao-embedding-large",
   openaiApiKey: "",
   openaiBaseUrl: "https://api.openai.com",
   openaiModel: "text-embedding-3-small",
