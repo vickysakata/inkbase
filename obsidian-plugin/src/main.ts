@@ -179,7 +179,7 @@ export default class InkbasePlugin extends Plugin {
     }
   }
 
-  async indexFile(filePath: string): Promise<void> {
+  async indexFile(filePath: string, force = false): Promise<void> {
     const file = this.app.vault.getAbstractFileByPath(filePath);
     if (!(file instanceof TFile)) return;
 
@@ -192,10 +192,12 @@ export default class InkbasePlugin extends Plugin {
     const title = file.basename;
     const chunks = splitIntoChunks(content, title);
 
-    // Check if content has changed (compare chunk texts)
-    const existing = this.store.getDocument(filePath);
-    if (existing && this.chunksUnchanged(existing.chunks, chunks)) {
-      return; // No change, skip re-embedding
+    // Check if content has changed (skip re-embedding only when not forced)
+    if (!force) {
+      const existing = this.store.getDocument(filePath);
+      if (existing && this.chunksUnchanged(existing.chunks, chunks)) {
+        return; // No change, skip re-embedding
+      }
     }
 
     // Generate embeddings
@@ -230,7 +232,7 @@ export default class InkbasePlugin extends Plugin {
     let indexed = 0;
     for (const file of files) {
       try {
-        await this.indexFile(file.path);
+        await this.indexFile(file.path, true); // force re-embedding
         indexed++;
         if (indexed % 10 === 0) {
           new Notice(`Inkbase: 已索引 ${indexed}/${files.length}...`);

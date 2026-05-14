@@ -1,5 +1,61 @@
-import { App, PluginSettingTab, Setting, TFolder } from "obsidian";
+import { App, Modal, PluginSettingTab, Setting, TFolder } from "obsidian";
 import type InkbasePlugin from "./main";
+
+class SwitchProviderModal extends Modal {
+  private plugin: InkbasePlugin;
+  private newProvider: string;
+  private onDone: () => void;
+
+  constructor(app: App, plugin: InkbasePlugin, newProvider: string, onDone: () => void) {
+    super(app);
+    this.plugin = plugin;
+    this.newProvider = newProvider;
+    this.onDone = onDone;
+  }
+
+  onOpen() {
+    const { contentEl } = this;
+    contentEl.empty();
+
+    contentEl.createEl("h3", { text: "切换 Embedding 服务商" });
+    contentEl.createEl("p", {
+      text: "你正在切换 embedding 服务商。不同模型生成的向量不兼容，是否清空已有的向量索引数据？",
+    });
+    contentEl.createEl("p", {
+      text: "注意：这只会清除向量索引，不会删除你的任何文档。",
+      cls: "mod-warning",
+    });
+
+    new Setting(contentEl)
+      .setName("清空向量数据")
+      .setDesc("推荐。清除旧模型的向量，之后需要用新模型重建索引。")
+      .addButton((btn) =>
+        btn
+          .setButtonText("清空并切换")
+          .setCta()
+          .onClick(async () => {
+            this.plugin.store.clear();
+            await this.plugin.store.save();
+            this.close();
+            this.onDone();
+          })
+      );
+
+    new Setting(contentEl)
+      .setName("保留向量数据")
+      .setDesc("如果你在测试不同模型，之后可能切回来，可以暂时保留。")
+      .addButton((btn) =>
+        btn.setButtonText("保留并切换").onClick(async () => {
+          this.close();
+          this.onDone();
+        })
+      );
+  }
+
+  onClose() {
+    this.contentEl.empty();
+  }
+}
 
 export class InkbaseSettingTab extends PluginSettingTab {
   plugin: InkbasePlugin;
@@ -30,9 +86,28 @@ export class InkbaseSettingTab extends PluginSettingTab {
           .addOption("custom", "自定义服务")
           .setValue(this.plugin.settings.provider)
           .onChange(async (value) => {
-            this.plugin.settings.provider = value as typeof this.plugin.settings.provider;
-            await this.plugin.saveSettings();
-            this.display();
+            const oldProvider = this.plugin.settings.provider;
+            const newProvider = value as typeof this.plugin.settings.provider;
+
+            if (oldProvider === newProvider) return;
+
+            // 如果已有索引数据，弹出确认对话框
+            if (this.plugin.store.getDocumentCount() > 0) {
+              new SwitchProviderModal(
+                this.app,
+                this.plugin,
+                newProvider,
+                async () => {
+                  this.plugin.settings.provider = newProvider;
+                  await this.plugin.saveSettings();
+                  this.display();
+                }
+              ).open();
+            } else {
+              this.plugin.settings.provider = newProvider;
+              await this.plugin.saveSettings();
+              this.display();
+            }
           })
       );
 

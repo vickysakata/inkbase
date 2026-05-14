@@ -60,6 +60,10 @@ export class VectorStore {
     delete this.data.documents[filePath];
   }
 
+  clear(): void {
+    this.data.documents = {};
+  }
+
   getDocumentCount(): number {
     return Object.keys(this.data.documents).length;
   }
