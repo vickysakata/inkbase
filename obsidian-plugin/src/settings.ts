@@ -9,7 +9,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
     this.plugin = plugin;
   }
 
-  /** 获取 vault 内所有文件夹路径 */
+  /** 获取当前笔记库内所有文件夹路径 */
   private getAllFolders(): string[] {
     const folders: string[] = [];
     const rootFolder = this.app.vault.getRoot();
@@ -34,30 +34,38 @@ export class InkbaseSettingTab extends PluginSettingTab {
 
     containerEl.createEl("h2", { text: "Inkbase 设置" });
 
-    // --- Provider Selection ---
+    // ============================================================
+    // 一、大模型配置
+    // ============================================================
+    containerEl.createEl("h3", { text: "大模型配置" });
+    containerEl.createEl("p", {
+      text: "配置用于理解文本语义的 AI 服务。插件通过该服务将你的笔记转化为可搜索的向量数据。",
+      cls: "setting-item-description",
+    });
+
     new Setting(containerEl)
-      .setName("Embedding 服务")
-      .setDesc("选择用于生成文本向量的服务提供商")
+      .setName("服务商")
+      .setDesc("选择 AI 服务提供方")
       .addDropdown((dropdown) =>
         dropdown
           .addOption("pie-gateway", "Pie Gateway")
           .addOption("openai", "OpenAI 兼容")
-          .addOption("ollama", "Ollama (本地)")
-          .addOption("custom", "自定义 Endpoint")
+          .addOption("ollama", "Ollama（完全本地）")
+          .addOption("custom", "自定义服务")
           .setValue(this.plugin.settings.provider)
           .onChange(async (value) => {
             this.plugin.settings.provider = value as typeof this.plugin.settings.provider;
             await this.plugin.saveSettings();
-            this.display(); // Refresh to show relevant fields
+            this.display();
           })
       );
 
-    // --- Provider-specific settings ---
     const provider = this.plugin.settings.provider;
 
     if (provider === "pie-gateway") {
       new Setting(containerEl)
         .setName("App ID")
+        .setDesc("PieBox 项目的应用 ID")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.pieAppId)
@@ -69,6 +77,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
 
       new Setting(containerEl)
         .setName("App Secret")
+        .setDesc("PieBox 项目的应用密钥")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.pieAppSecret)
@@ -79,7 +88,8 @@ export class InkbaseSettingTab extends PluginSettingTab {
         );
 
       new Setting(containerEl)
-        .setName("Gateway URL")
+        .setName("服务地址")
+        .setDesc("一般不需要修改")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.pieGatewayPath)
@@ -93,6 +103,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
     if (provider === "openai") {
       new Setting(containerEl)
         .setName("API Key")
+        .setDesc("你的 OpenAI API 密钥")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.openaiApiKey)
@@ -103,8 +114,8 @@ export class InkbaseSettingTab extends PluginSettingTab {
         );
 
       new Setting(containerEl)
-        .setName("Base URL")
-        .setDesc("OpenAI 兼容的 API 地址")
+        .setName("服务地址")
+        .setDesc("API 地址，支持 OpenAI 兼容的第三方服务")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.openaiBaseUrl)
@@ -115,7 +126,8 @@ export class InkbaseSettingTab extends PluginSettingTab {
         );
 
       new Setting(containerEl)
-        .setName("模型")
+        .setName("模型名称")
+        .setDesc("推荐 text-embedding-3-small")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.openaiModel)
@@ -129,6 +141,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
     if (provider === "ollama") {
       new Setting(containerEl)
         .setName("Ollama 地址")
+        .setDesc("本地 Ollama 服务地址")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.ollamaEndpoint)
@@ -140,6 +153,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
 
       new Setting(containerEl)
         .setName("模型名称")
+        .setDesc("需要先通过 ollama pull 下载模型")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.ollamaModel)
@@ -152,8 +166,8 @@ export class InkbaseSettingTab extends PluginSettingTab {
 
     if (provider === "custom") {
       new Setting(containerEl)
-        .setName("Endpoint URL")
-        .setDesc("OpenAI 兼容的 embedding endpoint")
+        .setName("服务地址")
+        .setDesc("OpenAI 兼容格式的 embedding 接口地址")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.customEndpoint)
@@ -175,7 +189,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
         );
 
       new Setting(containerEl)
-        .setName("模型")
+        .setName("模型名称")
         .addText((text) =>
           text
             .setValue(this.plugin.settings.customModel)
@@ -186,15 +200,21 @@ export class InkbaseSettingTab extends PluginSettingTab {
         );
     }
 
-    // --- General Settings ---
-    containerEl.createEl("h3", { text: "通用设置" });
+    // ============================================================
+    // 二、内容输入配置
+    // ============================================================
+    containerEl.createEl("h3", { text: "内容输入配置" });
+    containerEl.createEl("p", {
+      text: "配置「写点子」功能的保存位置。",
+      cls: "setting-item-description",
+    });
 
     new Setting(containerEl)
-      .setName("点子文件夹")
-      .setDesc("保存点子的文件夹路径")
+      .setName("点子保存位置")
+      .setDesc("通过「写点子」功能创建的笔记会保存到这个文件夹")
       .addDropdown((dropdown) => {
         const folders = this.getAllFolders();
-        dropdown.addOption("", "— 选择文件夹 —");
+        dropdown.addOption("", "— 请选择文件夹 —");
         for (const folder of folders) {
           dropdown.addOption(folder, folder);
         }
@@ -205,9 +225,19 @@ export class InkbaseSettingTab extends PluginSettingTab {
         });
       });
 
+    // ============================================================
+    // 三、检索设置
+    // ============================================================
+    containerEl.createEl("h3", { text: "检索设置" });
+    containerEl.createEl("p", {
+      text: "配置语义搜索的范围和行为。",
+      cls: "setting-item-description",
+    });
+
+    // -- 自动更新索引 --
     new Setting(containerEl)
-      .setName("自动索引")
-      .setDesc("文件修改时自动更新索引")
+      .setName("自动更新索引")
+      .setDesc("开启后，每次保存文件都会自动更新该文件的搜索索引")
       .addToggle((toggle) =>
         toggle
           .setValue(this.plugin.settings.autoIndex)
@@ -217,12 +247,13 @@ export class InkbaseSettingTab extends PluginSettingTab {
           })
       );
 
+    // -- 排除文件夹 --
     new Setting(containerEl)
-      .setName("排除文件夹")
-      .setDesc("不参与索引的文件夹")
+      .setName("排除检索的文件夹")
+      .setDesc("这些文件夹中的内容不会被索引，也不会出现在搜索结果中")
       .addDropdown((dropdown) => {
         const folders = this.getAllFolders();
-        dropdown.addOption("", "— 选择要排除的文件夹 —");
+        dropdown.addOption("", "— 点击选择要排除的文件夹 —");
         for (const folder of folders) {
           if (!this.plugin.settings.excludeFolders.includes(folder)) {
             dropdown.addOption(folder, folder);
@@ -237,7 +268,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
         });
       });
 
-    // Show selected excluded folders with remove buttons
+    // Show excluded folders as removable tags
     if (this.plugin.settings.excludeFolders.length > 0) {
       const excludeList = containerEl.createDiv({ cls: "inkbase-exclude-list" });
       for (const folder of this.plugin.settings.excludeFolders) {
@@ -256,10 +287,10 @@ export class InkbaseSettingTab extends PluginSettingTab {
       }
     }
 
-    // --- Library Configuration ---
-    containerEl.createEl("h3", { text: "库配置" });
+    // -- 搜索对象库 --
+    containerEl.createEl("h4", { text: "搜索对象库" });
     containerEl.createEl("p", {
-      text: "配置搜索时可筛选的库（对应 vault 中的文件夹），索引仍覆盖整个 vault。",
+      text: "将文件夹定义为「库」后，搜索时可以选择只在某个库内查找。所有文件夹的内容都会被索引，这里只是方便你按分类筛选搜索结果。",
       cls: "setting-item-description",
     });
 
@@ -269,7 +300,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
       const lib = libraries[i];
       new Setting(containerEl)
         .setName(lib.name)
-        .setDesc(`文件夹：${lib.folder}`)
+        .setDesc(`对应文件夹：${lib.folder}`)
         .addButton((btn) =>
           btn
             .setButtonText("删除")
@@ -286,17 +317,16 @@ export class InkbaseSettingTab extends PluginSettingTab {
     const addLibDiv = containerEl.createDiv({ cls: "inkbase-add-library" });
     const nameInput = addLibDiv.createEl("input", {
       type: "text",
-      placeholder: "库名称（如：素材库）",
+      placeholder: "输入库名称，如：素材库",
       cls: "inkbase-lib-input",
     });
 
-    // Folder dropdown for library
     const folderSelect = addLibDiv.createEl("select", {
       cls: "inkbase-lib-select",
     });
-    folderSelect.createEl("option", { text: "— 选择文件夹 —", value: "" });
-    const folders = this.getAllFolders();
-    for (const folder of folders) {
+    folderSelect.createEl("option", { text: "— 选择对应文件夹 —", value: "" });
+    const allFolders = this.getAllFolders();
+    for (const folder of allFolders) {
       folderSelect.createEl("option", { text: folder, value: folder });
     }
 
@@ -315,21 +345,21 @@ export class InkbaseSettingTab extends PluginSettingTab {
       this.display();
     });
 
-    // --- Index Stats & Actions ---
-    containerEl.createEl("h3", { text: "索引管理" });
+    // -- 索引管理 --
+    containerEl.createEl("h4", { text: "索引管理" });
 
     const statsEl = containerEl.createDiv({ cls: "inkbase-settings-stats" });
     const docCount = this.plugin.store.getDocumentCount();
     const chunkCount = this.plugin.store.getChunkCount();
-    statsEl.setText(`当前索引：${docCount} 篇文档，${chunkCount} 个片段`);
+    statsEl.setText(`当前已索引：${docCount} 篇文档，${chunkCount} 个文本片段`);
 
     new Setting(containerEl)
-      .setName("重建索引")
-      .setDesc("重新扫描所有文件并生成索引（耗时较长）")
+      .setName("重建全部索引")
+      .setDesc("重新分析所有笔记并生成搜索索引。首次使用或切换大模型后需要执行。")
       .addButton((btn) =>
         btn.setButtonText("开始重建").onClick(async () => {
           await this.plugin.reindexAll();
-          this.display(); // Refresh stats
+          this.display();
         })
       );
   }
