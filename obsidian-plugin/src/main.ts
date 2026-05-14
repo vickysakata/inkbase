@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS: InkbaseSettings = {
   ideasFolder: "ideas",
   excludeFolders: [],
   autoIndex: true,
+  libraries: [],
 };
 
 export default class InkbasePlugin extends Plugin {
@@ -260,9 +261,10 @@ export default class InkbasePlugin extends Plugin {
 
   async semanticSearch(
     query: string,
-    limit = 10
+    limit = 10,
+    libraryFolder?: string
   ): Promise<{ filePath: string; title: string; chunk: string; score: number }[]> {
     const queryEmbedding = await this.embeddingProvider.getEmbedding(query);
-    return this.store.search(queryEmbedding, limit);
+    return this.store.search(queryEmbedding, limit, libraryFolder);
   }
 }

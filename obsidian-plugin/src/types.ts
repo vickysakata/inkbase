@@ -24,6 +24,14 @@ export interface InkbaseSettings {
   ideasFolder: string;
   excludeFolders: string[];
   autoIndex: boolean;
+
+  // Libraries (for filtering search results)
+  libraries: Library[];
+}
+
+export interface Library {
+  name: string;   // 显示名称，如 "素材库"、"点子库"
+  folder: string; // 对应的文件夹路径，如 "素材"、"ideas"
 }
 
 export interface EmbeddingProvider {

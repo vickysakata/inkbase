@@ -209,6 +209,59 @@ export class InkbaseSettingTab extends PluginSettingTab {
           })
       );
 
+    // --- Library Configuration ---
+    containerEl.createEl("h3", { text: "库配置" });
+    containerEl.createEl("p", {
+      text: "配置搜索时可筛选的库（对应 vault 中的文件夹），索引仍覆盖整个 vault。",
+      cls: "setting-item-description",
+    });
+
+    // Display existing libraries
+    const libraries = this.plugin.settings.libraries;
+    for (let i = 0; i < libraries.length; i++) {
+      const lib = libraries[i];
+      new Setting(containerEl)
+        .setName(lib.name)
+        .setDesc(`文件夹：${lib.folder}`)
+        .addButton((btn) =>
+          btn
+            .setButtonText("删除")
+            .setWarning()
+            .onClick(async () => {
+              this.plugin.settings.libraries.splice(i, 1);
+              await this.plugin.saveSettings();
+              this.display();
+            })
+        );
+    }
+
+    // Add new library
+    const addLibDiv = containerEl.createDiv({ cls: "inkbase-add-library" });
+    const nameInput = addLibDiv.createEl("input", {
+      type: "text",
+      placeholder: "库名称（如：素材库）",
+      cls: "inkbase-lib-input",
+    });
+    const folderInput = addLibDiv.createEl("input", {
+      type: "text",
+      placeholder: "文件夹路径（如：素材）",
+      cls: "inkbase-lib-input",
+    });
+    const addBtn = addLibDiv.createEl("button", {
+      text: "添加",
+      cls: "inkbase-lib-add-btn",
+    });
+
+    addBtn.addEventListener("click", async () => {
+      const name = nameInput.value.trim();
+      const folder = folderInput.value.trim();
+      if (!name || !folder) return;
+
+      this.plugin.settings.libraries.push({ name, folder });
+      await this.plugin.saveSettings();
+      this.display();
+    });
+
     // --- Index Stats & Actions ---
     containerEl.createEl("h3", { text: "索引管理" });
 

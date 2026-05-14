@@ -71,10 +71,15 @@ export class VectorStore {
     );
   }
 
-  search(queryEmbedding: number[], limit: number): SearchResult[] {
+  search(queryEmbedding: number[], limit: number, folderFilter?: string): SearchResult[] {
     const results: SearchResult[] = [];
 
     for (const [filePath, doc] of Object.entries(this.data.documents)) {
+      // Filter by folder if specified
+      if (folderFilter && !filePath.startsWith(folderFilter + "/") && filePath !== folderFilter) {
+        continue;
+      }
+
       for (const chunk of doc.chunks) {
         if (!chunk.embedding || chunk.embedding.length === 0) continue;
         const score = cosineSimilarity(queryEmbedding, chunk.embedding);

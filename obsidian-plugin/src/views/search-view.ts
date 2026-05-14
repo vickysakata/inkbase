@@ -7,6 +7,7 @@ export class SearchView extends ItemView {
   private plugin: InkbasePlugin;
   private inputEl: HTMLInputElement;
   private resultsEl: HTMLElement;
+  private selectedLibrary: string | undefined = undefined; // undefined = 全部
 
   constructor(leaf: WorkspaceLeaf, plugin: InkbasePlugin) {
     super(leaf);
@@ -44,6 +45,35 @@ export class SearchView extends ItemView {
     });
     setIcon(searchBtn, "search");
 
+    // Library filter buttons
+    const libraries = this.plugin.settings.libraries;
+    if (libraries.length > 0) {
+      const filterWrapper = container.createDiv({ cls: "inkbase-filter-wrapper" });
+
+      // "全部" button
+      const allBtn = filterWrapper.createEl("button", {
+        cls: "inkbase-filter-btn inkbase-filter-active",
+        text: "全部",
+      });
+      allBtn.addEventListener("click", () => {
+        this.selectedLibrary = undefined;
+        this.updateFilterButtons(filterWrapper);
+      });
+
+      // Library buttons
+      for (const lib of libraries) {
+        const btn = filterWrapper.createEl("button", {
+          cls: "inkbase-filter-btn",
+          text: lib.name,
+        });
+        btn.dataset.folder = lib.folder;
+        btn.addEventListener("click", () => {
+          this.selectedLibrary = lib.folder;
+          this.updateFilterButtons(filterWrapper);
+        });
+      }
+    }
+
     // Results area
     this.resultsEl = container.createDiv({ cls: "inkbase-results" });
 
@@ -69,6 +99,23 @@ export class SearchView extends ItemView {
     this.contentEl.empty();
   }
 
+  private updateFilterButtons(wrapper: HTMLElement) {
+    const buttons = wrapper.querySelectorAll(".inkbase-filter-btn");
+    buttons.forEach((btn) => {
+      const el = btn as HTMLElement;
+      const isAll = !el.dataset.folder;
+      const isActive = isAll
+        ? this.selectedLibrary === undefined
+        : el.dataset.folder === this.selectedLibrary;
+
+      if (isActive) {
+        el.addClass("inkbase-filter-active");
+      } else {
+        el.removeClass("inkbase-filter-active");
+      }
+    });
+  }
+
   private async doSearch() {
     const query = this.inputEl.value.trim();
     if (!query) return;
@@ -78,7 +125,7 @@ export class SearchView extends ItemView {
     loadingEl.setText("搜索中...");
 
     try {
-      const results = await this.plugin.semanticSearch(query, 10);
+      const results = await this.plugin.semanticSearch(query, 10, this.selectedLibrary);
       this.resultsEl.empty();
 
       if (results.length === 0) {
