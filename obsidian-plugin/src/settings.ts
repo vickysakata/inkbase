@@ -116,7 +116,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
     if (provider === "pie-gateway") {
       new Setting(containerEl)
         .setName("App ID")
-        .setDesc("PieBox 项目的应用 ID，格式如 app_63c17985b43acd...")
+        .setDesc("PieBox 项目的应用 ID，格式如 app_xxxxxxxx")
         .addText((text) =>
           text
             .setPlaceholder("app_xxxxxxxx")
@@ -173,7 +173,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
         .setDesc("在方舟平台 → 接入点管理中创建 embedding 模型的接入点，格式如 ep-xxx")
         .addText((text) =>
           text
-            .setPlaceholder("ep-20260514161629-xxxxx")
+            .setPlaceholder("ep-xxxxxxxxxx-xxxxx")
             .setValue(this.plugin.settings.doubaoModel)
             .onChange(async (value) => {
               this.plugin.settings.doubaoModel = value;

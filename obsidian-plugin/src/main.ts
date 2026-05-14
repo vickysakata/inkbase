@@ -12,7 +12,7 @@ const DEFAULT_SETTINGS: InkbaseSettings = {
   pieAppSecret: "",
   pieGatewayPath: "https://pie-gateway.weapp.me",
   doubaoApiKey: "",
-  doubaoModel: "ep-20260514161629-ljxkk",
+  doubaoModel: "",
   openaiApiKey: "",
   openaiBaseUrl: "https://api.openai.com",
   openaiModel: "text-embedding-3-small",
