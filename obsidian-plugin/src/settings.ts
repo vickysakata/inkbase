@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, PluginSettingTab, Setting, TFolder } from "obsidian";
 import type InkbasePlugin from "./main";
 
 export class InkbaseSettingTab extends PluginSettingTab {
@@ -7,6 +7,25 @@ export class InkbaseSettingTab extends PluginSettingTab {
   constructor(app: App, plugin: InkbasePlugin) {
     super(app, plugin);
     this.plugin = plugin;
+  }
+
+  /** 获取 vault 内所有文件夹路径 */
+  private getAllFolders(): string[] {
+    const folders: string[] = [];
+    const rootFolder = this.app.vault.getRoot();
+
+    const walk = (folder: TFolder) => {
+      for (const child of folder.children) {
+        if (child instanceof TFolder) {
+          folders.push(child.path);
+          walk(child);
+        }
+      }
+    };
+    walk(rootFolder);
+
+    folders.sort();
+    return folders;
   }
 
   display(): void {
@@ -172,15 +191,19 @@ export class InkbaseSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("点子文件夹")
-      .setDesc("保存点子的文件夹路径（相对 vault 根目录）")
-      .addText((text) =>
-        text
-          .setValue(this.plugin.settings.ideasFolder)
-          .onChange(async (value) => {
-            this.plugin.settings.ideasFolder = value;
-            await this.plugin.saveSettings();
-          })
-      );
+      .setDesc("保存点子的文件夹路径")
+      .addDropdown((dropdown) => {
+        const folders = this.getAllFolders();
+        dropdown.addOption("", "— 选择文件夹 —");
+        for (const folder of folders) {
+          dropdown.addOption(folder, folder);
+        }
+        dropdown.setValue(this.plugin.settings.ideasFolder);
+        dropdown.onChange(async (value) => {
+          this.plugin.settings.ideasFolder = value;
+          await this.plugin.saveSettings();
+        });
+      });
 
     new Setting(containerEl)
       .setName("自动索引")
@@ -196,18 +219,42 @@ export class InkbaseSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
       .setName("排除文件夹")
-      .setDesc("不参与索引的文件夹，用逗号分隔")
-      .addText((text) =>
-        text
-          .setValue(this.plugin.settings.excludeFolders.join(", "))
-          .onChange(async (value) => {
-            this.plugin.settings.excludeFolders = value
-              .split(",")
-              .map((s) => s.trim())
-              .filter((s) => s.length > 0);
+      .setDesc("不参与索引的文件夹")
+      .addDropdown((dropdown) => {
+        const folders = this.getAllFolders();
+        dropdown.addOption("", "— 选择要排除的文件夹 —");
+        for (const folder of folders) {
+          if (!this.plugin.settings.excludeFolders.includes(folder)) {
+            dropdown.addOption(folder, folder);
+          }
+        }
+        dropdown.onChange(async (value) => {
+          if (value && !this.plugin.settings.excludeFolders.includes(value)) {
+            this.plugin.settings.excludeFolders.push(value);
             await this.plugin.saveSettings();
-          })
-      );
+            this.display();
+          }
+        });
+      });
+
+    // Show selected excluded folders with remove buttons
+    if (this.plugin.settings.excludeFolders.length > 0) {
+      const excludeList = containerEl.createDiv({ cls: "inkbase-exclude-list" });
+      for (const folder of this.plugin.settings.excludeFolders) {
+        const tag = excludeList.createDiv({ cls: "inkbase-exclude-tag" });
+        tag.createSpan({ text: folder });
+        const removeBtn = tag.createEl("button", {
+          text: "×",
+          cls: "inkbase-exclude-remove",
+        });
+        removeBtn.addEventListener("click", async () => {
+          this.plugin.settings.excludeFolders =
+            this.plugin.settings.excludeFolders.filter((f) => f !== folder);
+          await this.plugin.saveSettings();
+          this.display();
+        });
+      }
+    }
 
     // --- Library Configuration ---
     containerEl.createEl("h3", { text: "库配置" });
@@ -242,11 +289,17 @@ export class InkbaseSettingTab extends PluginSettingTab {
       placeholder: "库名称（如：素材库）",
       cls: "inkbase-lib-input",
     });
-    const folderInput = addLibDiv.createEl("input", {
-      type: "text",
-      placeholder: "文件夹路径（如：素材）",
-      cls: "inkbase-lib-input",
+
+    // Folder dropdown for library
+    const folderSelect = addLibDiv.createEl("select", {
+      cls: "inkbase-lib-select",
     });
+    folderSelect.createEl("option", { text: "— 选择文件夹 —", value: "" });
+    const folders = this.getAllFolders();
+    for (const folder of folders) {
+      folderSelect.createEl("option", { text: folder, value: folder });
+    }
+
     const addBtn = addLibDiv.createEl("button", {
       text: "添加",
       cls: "inkbase-lib-add-btn",
@@ -254,7 +307,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
 
     addBtn.addEventListener("click", async () => {
       const name = nameInput.value.trim();
-      const folder = folderInput.value.trim();
+      const folder = folderSelect.value;
       if (!name || !folder) return;
 
       this.plugin.settings.libraries.push({ name, folder });
