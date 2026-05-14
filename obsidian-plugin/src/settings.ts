@@ -237,7 +237,7 @@ export class InkbaseSettingTab extends PluginSettingTab {
     // -- 搜索对象库 --
     new Setting(containerEl)
       .setName("搜索对象库")
-      .setDesc("定义搜索时可筛选的分类。搜索面板顶部会出现对应筛选按钮。");
+      .setDesc("给笔记库内的文件夹起一个名字作为搜索分类。搜索时可以选择只在某个库内查找。");
 
     // Display existing libraries
     const libraries = this.plugin.settings.libraries;

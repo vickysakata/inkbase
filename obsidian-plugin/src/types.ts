@@ -31,7 +31,7 @@ export interface InkbaseSettings {
 
 export interface Library {
   name: string;   // 显示名称，如 "素材库"、"点子库"
-  folder: string; // 对应的文件夹路径，如 "素材"、"ideas"
+  folder: string; // 笔记库内的文件夹路径，如 "素材"、"ideas"
 }
 
 export interface EmbeddingProvider {

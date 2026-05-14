@@ -246,7 +246,7 @@ export default class InkbasePlugin extends Plugin {
         indexed++;
         if (indexed % 10 === 0) {
           new Notice(`Inkbase: 已索引 ${indexed}/${files.length}...`);
-          await this.store.save(); // Periodic save
+          await this.store.save();
         }
       } catch (err) {
         console.error(`[Inkbase] Failed to index ${file.path}:`, err);
